@@ -9,16 +9,21 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
 
 import com.vinhcrazyyyy.funnyguy.FunnyDatasource;
 import com.vinhcrazyyyy.funnyguy.FunnyRemoteDatasource;
 import com.vinhcrazyyyy.funnyguy.FunnyTextVM;
 import com.vinhcrazyyyy.funnyguy.OkHttpApi;
+import com.vinhcrazyyyy.funnyguy.recyclerViewFunnyTexts.FunnyTextAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +32,10 @@ public class CBWatcherService extends Service {
 
     private final String tag = "[[ClipboardWatcherService]] ";
     List<FunnyTextVM> funnyTextSuggestions;
-    private View mView;
+
+    //finally removed view by recyclerView
+//    private View mView;
+
     private WindowManager.LayoutParams mParams;
     private WindowManager mWindowManager;
     private OnPrimaryClipChangedListener listener = new OnPrimaryClipChangedListener() {
@@ -103,10 +111,13 @@ public class CBWatcherService extends Service {
     }
 
     private void showWindow(List<FunnyTextVM> funnyTextSuggestions) {
-        mView = new MyLoadView(this, funnyTextSuggestions);
+        RecyclerView recyclerView = setupRecyclerView(funnyTextSuggestions);
+
+        //Finally remove the view by recyclerView
+//        mView = new MyLoadView(this, funnyTextSuggestions);
 
         mParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT, 10, 10,
+                WindowManager.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 10, 10,
                 WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
@@ -116,7 +127,23 @@ public class CBWatcherService extends Service {
         mParams.setTitle("Window test");
 
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        mWindowManager.addView(mView, mParams);
+        mWindowManager.addView(recyclerView, mParams);
+    }
+
+    private RecyclerView setupRecyclerView(List<FunnyTextVM> funnyTextSuggestions) {
+        RecyclerView recyclerView = new RecyclerView(this);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+
+        recyclerView.addItemDecoration(dividerItemDecoration);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        FunnyTextAdapter funnyTextAdapter = new FunnyTextAdapter(funnyTextSuggestions);
+
+        recyclerView.setAdapter(funnyTextAdapter);
+
+        return recyclerView;
     }
 
     private List<FunnyTextVM> filterResults(String copiedValue, List<FunnyTextVM> data) {
@@ -140,46 +167,46 @@ public class CBWatcherService extends Service {
         sendBroadcast(intent);
     }
 
-
-    public class MyLoadView extends View {
-
-        private android.graphics.Paint mPaint;
-
-        private List<FunnyTextVM> funnyText;
-
-        public MyLoadView(android.content.Context context, List<FunnyTextVM> data) {
-            super(context);
-            mPaint = new android.graphics.Paint();
-            mPaint.setTextSize(50);
-            mPaint.setARGB(200, 200, 200, 200);
-            this.funnyText = data;
-        }
-
-        @Override
-        protected void onDraw(android.graphics.Canvas canvas) {
-            super.onDraw(canvas);
-            int nextLineHeight = 40;
-            int breakLineHeight = 50;
-            for (int i = 0; i < funnyText.size(); i++) {
-                canvas.drawText(funnyText.get(i).getFunnyText() + "\n", 0, nextLineHeight, mPaint);
-                nextLineHeight += breakLineHeight;
-            }
-
-        }
-
-        @Override
-        protected void onAttachedToWindow() {
-            super.onAttachedToWindow();
-        }
-
-        @Override
-        protected void onDetachedFromWindow() {
-            super.onDetachedFromWindow();
-        }
-
-        @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
-    }
+    //Finally removed view and replace by recyclerView
+//    public class MyLoadView extends View {
+//
+//        private android.graphics.Paint mPaint;
+//
+//        private List<FunnyTextVM> funnyText;
+//
+//        public MyLoadView(android.content.Context context, List<FunnyTextVM> data) {
+//            super(context);
+//            mPaint = new android.graphics.Paint();
+//            mPaint.setTextSize(50);
+//            mPaint.setARGB(200, 200, 200, 200);
+//            this.funnyText = data;
+//        }
+//
+//        @Override
+//        protected void onDraw(android.graphics.Canvas canvas) {
+//            super.onDraw(canvas);
+//            int nextLineHeight = 40;
+//            int breakLineHeight = 50;
+//            for (int i = 0; i < funnyText.size(); i++) {
+//                canvas.drawText(funnyText.get(i).getFunnyText() + "\n", 0, nextLineHeight, mPaint);
+//                nextLineHeight += breakLineHeight;
+//            }
+//
+//        }
+//
+//        @Override
+//        protected void onAttachedToWindow() {
+//            super.onAttachedToWindow();
+//        }
+//
+//        @Override
+//        protected void onDetachedFromWindow() {
+//            super.onDetachedFromWindow();
+//        }
+//
+//        @Override
+//        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//        }
+//    }
 }

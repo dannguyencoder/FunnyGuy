@@ -24,7 +24,7 @@ public class OkHttpApi implements Api {
         OkHttpClient okHttpClient = new OkHttpClient();
 
         final Request request = new Request.Builder()
-                .url("http://172.16.8.109:7777/")
+                .url("http://192.168.1.100:7777/")
                 .build();
 
         okHttpClient.newCall(request).enqueue(new Callback() {

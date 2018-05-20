@@ -46,6 +46,8 @@ public class FunnyTextAdapter extends RecyclerView.Adapter<FunnyTextAdapter.Funn
 
         public FunnyTextViewHolder(View itemView) {
             super(itemView);
+
+            tvFunnyText = itemView.findViewById(R.id.tv_funny_text);
         }
 
         public void bind(FunnyTextVM data) {
