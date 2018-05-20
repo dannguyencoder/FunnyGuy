@@ -14,9 +14,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
 
 import com.vinhcrazyyyy.funnyguy.FunnyDatasource;
@@ -28,6 +28,9 @@ import com.vinhcrazyyyy.funnyguy.recyclerViewFunnyTexts.FunnyTextAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
+
 public class CBWatcherService extends Service {
 
     private final String tag = "[[ClipboardWatcherService]] ";
@@ -35,6 +38,9 @@ public class CBWatcherService extends Service {
 
     //finally removed view by recyclerView
 //    private View mView;
+
+    RecyclerView recyclerView;
+    FunnyTextAdapter funnyTextAdapter;
 
     private WindowManager.LayoutParams mParams;
     private WindowManager mWindowManager;
@@ -107,11 +113,19 @@ public class CBWatcherService extends Service {
 
     private void showPopUpWithRecyclerView(List<FunnyTextVM> funnyTextSuggestions) {
         //TODO: Make it like a window. Show just text using canvas as a demo
-        showWindow(funnyTextSuggestions);
+        //Add it on the first time
+        if (recyclerView == null) {
+            addRecyclerViewToWindow(funnyTextSuggestions);
+        } else {
+            //else recycle the list with new data
+            funnyTextAdapter = new FunnyTextAdapter(funnyTextSuggestions);
+            recyclerView.setAdapter(funnyTextAdapter);
+        }
+
     }
 
-    private void showWindow(List<FunnyTextVM> funnyTextSuggestions) {
-        RecyclerView recyclerView = setupRecyclerView(funnyTextSuggestions);
+    private void addRecyclerViewToWindow(List<FunnyTextVM> funnyTextSuggestions) {
+        recyclerView = setupRecyclerView(funnyTextSuggestions);
 
         //Finally remove the view by recyclerView
 //        mView = new MyLoadView(this, funnyTextSuggestions);
@@ -131,7 +145,7 @@ public class CBWatcherService extends Service {
     }
 
     private RecyclerView setupRecyclerView(List<FunnyTextVM> funnyTextSuggestions) {
-        RecyclerView recyclerView = new RecyclerView(this);
+        recyclerView = new RecyclerView(this);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
 
         recyclerView.addItemDecoration(dividerItemDecoration);
@@ -139,9 +153,13 @@ public class CBWatcherService extends Service {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        FunnyTextAdapter funnyTextAdapter = new FunnyTextAdapter(funnyTextSuggestions);
+        SlideInUpAnimator animator = new SlideInUpAnimator(new OvershootInterpolator(1f));
 
-        recyclerView.setAdapter(funnyTextAdapter);
+        recyclerView.setItemAnimator(animator);
+
+        funnyTextAdapter = new FunnyTextAdapter(funnyTextSuggestions);
+
+        recyclerView.setAdapter(new AlphaInAnimationAdapter(funnyTextAdapter));
 
         return recyclerView;
     }

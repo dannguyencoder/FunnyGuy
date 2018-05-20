@@ -1,7 +1,10 @@
 package com.vinhcrazyyyy.funnyguy.recyclerViewFunnyTexts;
 
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,7 @@ import com.vinhcrazyyyy.funnyguy.R;
 import java.util.List;
 
 import butterknife.BindView;
+import jp.wasabeef.recyclerview.animators.holder.AnimateViewHolder;
 
 public class FunnyTextAdapter extends RecyclerView.Adapter<FunnyTextAdapter.FunnyTextViewHolder> {
 
@@ -39,7 +43,7 @@ public class FunnyTextAdapter extends RecyclerView.Adapter<FunnyTextAdapter.Funn
         return data.size();
     }
 
-    class FunnyTextViewHolder extends RecyclerView.ViewHolder {
+    class FunnyTextViewHolder extends RecyclerView.ViewHolder implements AnimateViewHolder {
 
         @BindView(R.id.tv_funny_text)
         TextView tvFunnyText;
@@ -52,6 +56,37 @@ public class FunnyTextAdapter extends RecyclerView.Adapter<FunnyTextAdapter.Funn
 
         public void bind(FunnyTextVM data) {
             tvFunnyText.setText(data.getFunnyText());
+        }
+
+        @Override
+        public void preAnimateAddImpl(ViewHolder holder) {
+            ViewCompat.setTranslationY(itemView, -itemView.getHeight() * 0.3f);
+            ViewCompat.setAlpha(itemView, 0);
+        }
+
+        @Override
+        public void preAnimateRemoveImpl(ViewHolder holder) {
+
+        }
+
+        @Override
+        public void animateAddImpl(ViewHolder holder, ViewPropertyAnimatorListener listener) {
+            ViewCompat.animate(itemView)
+                    .translationY(0)
+                    .alpha(1)
+                    .setDuration(300)
+                    .setListener(listener)
+                    .start();
+        }
+
+        @Override
+        public void animateRemoveImpl(ViewHolder holder, ViewPropertyAnimatorListener listener) {
+            ViewCompat.animate(itemView)
+                    .translationY(-itemView.getHeight() * 0.3f)
+                    .alpha(0)
+                    .setDuration(300)
+                    .setListener(listener)
+                    .start();
         }
     }
 }
